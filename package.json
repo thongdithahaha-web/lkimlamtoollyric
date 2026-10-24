@@ -1,0 +1,12 @@
+{
+  "name": "tool-lyric-lekimlamcode",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node server.mjs",
+    "start": "node server.mjs",
+    "build": "node --check server.mjs",
+    "lint": "node --check server.mjs"
+  }
+}

@@ -1,11 +1,188 @@
-<div align="center">
+---
+title: Tool Lyric by lekimlamcode
+emoji: 🎤
+colorFrom: indigo
+colorTo: pink
+sdk: docker
+app_port: 7860
+pinned: false
+license: mit
+---
 
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
+# 🎤 Tool Lyric by lekimlamcode
 
-  <h1>Built with AI Studio</h2>
+Ứng dụng web chuyên nghiệp để căn chỉnh lời bài hát với nhạc nền, tạo hiệu ứng chữ nhảy múa đồng bộ (Tool Lyric by lekimlamcode) bằng Wav2Vec2 AI Model.
 
-  <p>The fastest path from prompt to production with Gemini.</p>
+## 📁 Cấu trúc Dự án
 
-  <a href="https://aistudio.google.com/apps">Start building</a>
+```
+auto-lyrics-align/
+├── backend/
+│   └── fastapi_app.py              # API Backend (FastAPI)
+├── frontend/
+│   └── static/
+│       └── index.html              # Web UI (HTML/CSS/JS)
+├── models/
+│   └── lyric-alignment/            # AI Model weights
+├── docs/                           # Documentation
+├── examples/                       # Demo files & examples
+├── scripts/                        # Utility scripts
+├── uploads/                        # Runtime folder (lưu file tải lên)
+├── run.sh                          # Entry point (khởi động app)
+└── README.md
+```
 
-</div>
+## 🚀 Quick Start
+
+### 1. **Tạo Environment & Cài Dependencies** (Lần Đầu)
+
+```bash
+# Option A: Dùng Conda (Recommended)
+conda env create -f environment.yml
+conda activate lyric_env
+
+# Option B: Dùng pip + venv
+python3 -m venv lyric_env
+source lyric_env/bin/activate  # Linux/macOS
+pip install -r requirements.txt
+```
+
+### 2. **Tải model từ Hugging Face (bắt buộc)**
+
+```bash
+# Cài công cụ tải model (một lần)
+pip install -U huggingface-hub
+
+# Tải model về đúng thư mục local
+mkdir -p models/lyric-alignment
+hf download nguyenvulebinh/lyric-alignment --local-dir models/lyric-alignment
+```
+
+Nếu không có lệnh `hf`, bạn có thể dùng:
+
+```bash
+huggingface-cli download nguyenvulebinh/lyric-alignment --local-dir models/lyric-alignment
+```
+
+Kỳ vọng có file `pytorch_model.bin` trong `models/lyric-alignment/`.
+
+### 3. **Khởi động Server**
+
+```bash
+./run.sh
+```
+
+Truy cập: http://127.0.0.1:7864/auto
+
+---
+
+## 📚 Chi Tiết Cài Đặt
+
+Xem [INSTALLATION.md](docs/INSTALLATION.md) để:
+- ✅ Cài đặt từng bước
+- ✅ Giải quyết vấn đề phổ biến
+- ✅ Cài thêm dependencies (dev, ML)
+- ✅ Verify cài đặt
+- ✅ Troubleshooting guide
+
+Hoặc chạy trực tiếp:
+
+```bash
+python backend/fastapi_app.py
+```
+
+Server sẽ chạy tại: **http://127.0.0.1:7864**
+
+### 2. **Truy cập Web UI**
+
+Mở trình duyệt và nhập:
+
+```
+http://127.0.0.1:7864
+```
+
+Nếu chạy trên server từ xa, thay thế `127.0.0.1` bằng địa chỉ IP của server.
+
+### 3. **Cách Sử dụng**
+
+1. Chọn file nhạc (`.mp3`, `.wav`, `.flac`, v.v.)
+2. Nhập lời bài hát (mỗi dòng = 1 đoạn)
+3. Bấm **"Bắt đầu Căn chỉnh Lời"**
+4. Đợi khoảng 10-30 giây để AI xử lý
+5. Bấm **Play ▶️** để xem chữ chạy đồng bộ với nhạc
+
+## 🛠️ Yêu cầu Hệ thống
+
+- **Python 3.10+**
+- **Conda** (với environment `lyric_env` đã được cài đặt)
+- **GPU** (nên có để xử lý nhanh, CPU cũng được nhưng chậm hơn)
+
+### Packages Cần Thiết:
+
+```bash
+conda run -n lyric_env pip install fastapi uvicorn python-multipart torch torchaudio transformers
+```
+
+## 📝 Thông tin API
+
+### POST /api/align
+
+**Request:**
+- `audio_file`: File audio (multipart form)
+- `lyric_text`: Lời bài hát (dạng text)
+
+**Response:**
+```json
+{
+  "audio_url": "/media/audio_<uuid>.mp3",
+  "alignment": [
+    {
+      "s": 0,
+      "e": 500,
+      "l": [
+        { "s": 0, "e": 250, "d": "Xin" },
+        { "s": 250, "e": 500, "d": "chào" }
+      ]
+    }
+  ]
+}
+```
+
+## 🎯 Các File Quan Trọng
+
+| File | Mục đích |
+|------|---------|
+| `backend/fastapi_app.py` | API Server, xử lý alignment |
+| `frontend/static/index.html` | Giao diện web, hiệu ứng karaoke |
+| `models/alignment-code/predict.py` | Gọi AI Model để căn chỉnh |
+| `models/alignment-code/read_map.json` | Mapping dữ liệu model |
+
+## 🐛 Troubleshooting
+
+### Lỗi: "Address already in use"
+```bash
+fuser -k 7864/tcp  # Kill process đang dùng port 7864
+```
+
+### Lỗi: "read_map.json not found"
+Đảm bảo đang chạy từ thư mục `models/alignment-code`:
+```bash
+python backend/fastapi_app.py
+```
+
+### Chậm xử lý
+- Kiểm tra GPU: `nvidia-smi` (nếu có)
+- Tăng kích thước RAM nếu xử lý bị out-of-memory
+
+## 📞 Hỗ Trợ
+
+Nếu gặp vấn đề, hãy kiểm tra:
+1. Port 7864 có sẵn không?
+2. Conda environment `lyric_env` có được kích hoạt không?
+3. Model weights có tải về không? (folder `models/lyric-alignment`)
+
+---
+
+**Tạo bởi:** _lkimlamdevcode  
+**Ngôn ngữ:** Python (FastAPI), HTML/CSS/JavaScript  
+**Model:** Wav2Vec2 (facebook/wav2vec2-base-960h)  

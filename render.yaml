@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: tool-lyric
+    runtime: docker
+    dockerfilePath: Dockerfile
+    region: singapore
+    plan: free
+    envVars:
+      - key: PORT
+        value: 10000
